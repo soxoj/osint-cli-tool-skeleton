@@ -13,7 +13,7 @@
     </a>
   </p>
   <p align="center">
-    <img src="https://raw.githubusercontent.com/soxoj/osint-cli-tool-skeleton/main/pictures/osint-cli-tool-skeleton.png" height="200"/>
+    <img src="https://raw.githubusercontent.com/soxoj/osint-cli-tool-skeleton/main/pictures/logo.png" height="200"/>
   </p>
 </p>
 
