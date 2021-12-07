@@ -1,6 +1,30 @@
 # OSINT cli tool skeleton
 
-Template for new OSINT command-line tools
+<p align="center">
+  <p align="center">
+    <a href="https://pypi.org/project/osint-cli-tool-skeleton/">
+      <img alt="PyPI" src="https://img.shields.io/pypi/v/osint-cli-tool-skeleton?style=flat-square">
+    </a>
+    <a href="https://pypi.org/project/osint-cli-tool-skeleton/">
+      <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dw/osint-cli-tool-skeleton?style=flat-square">
+    </a>
+    <a href="https://pypi.org/project/osint-cli-tool-skeleton/">
+      <img alt="Views" src="https://komarev.com/ghpvc/?username=osint-cli-tool-skeleton&color=brightgreen&label=views&style=flat-square">
+    </a>
+  </p>
+  <p align="center">
+    <img src="https://raw.githubusercontent.com/soxoj/osint-cli-tool-skeleton/main/pictures/osint-cli-tool-skeleton.png" height="200"/>
+  </p>
+</p>
+
+Template for new OSINT command-line tools.
+
+**Press button "Use this template" to generate your own tool repository.**
+
+## Features
+
+- Detailed readme
+- Ready to publish Python package
 
 ## Installation
 
