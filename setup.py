@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-exec(open('osint-cli-tool-skeleton/_version.py').read())
+exec(open('osint_cli_tool_skeleton/_version.py').read())
 
 with open('requirements.txt') as rf:
     requires = rf.read().splitlines()
@@ -9,7 +9,7 @@ with open('README.md') as fh:
     long_description = fh.read()
 
 setup(
-    name="osint-cli-tool-skeleton",
+    name="osint_cli_tool_skeleton",
     version=__version__,
     description="A skeleton for OSINT CLI tool",
     long_description=long_description,

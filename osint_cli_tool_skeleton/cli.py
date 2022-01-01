@@ -7,10 +7,12 @@ import platform
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
+from .core import *
+
 
 def setup_arguments_parser():
     from aiohttp import __version__ as aiohttp_version
-    from _version import __version__
+    from ._version import __version__
 
     version_string = '\n'.join(
         [
@@ -128,14 +130,14 @@ async def main():
 
     print(args)
 
+    input_data = InputData('test')
+
+    print(process([input_data]))
+
 
 def run():
-    try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
-    except KeyboardInterrupt:
-        print('Maigret is interrupted.')
-        sys.exit(1)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
 
 
 if __name__ == "__main__":
