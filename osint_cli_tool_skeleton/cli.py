@@ -44,6 +44,13 @@ def setup_arguments_parser():
         default='',
         help="Path to text file with list of targets.",
     )
+    target_group.add_argument(
+        "--targets-from-stdin",
+        action="store_true",
+        dest="target_list_stdin",
+        default=False,
+        help="Read all the lines from standard input.",
+    )
     parser.add_argument(
         "--version",
         action="version",
@@ -142,12 +149,21 @@ async def main():
 
     input_data = []
 
+    # read from file
     if args.target_list_filename:
         if not os.path.exists(args.target_list_filename):
             print(f'There is no file {args.target_list_filename}')
         else:
             with open(args.target_list_filename) as f:
                 input_data = [InputData(t) for t in f.read().splitlines()]
+
+    # read from stdin
+    # e.g. cat list.txt | ./run.py --targets-from-stdin
+    elif args.target_list_stdin:
+        for line in sys.stdin:
+            input_data.append(InputData(line.strip()))
+
+    # read from arguments
     elif args.target:
         input_data = [InputData(t) for t in args.target]
 

@@ -77,3 +77,8 @@ Or use a file with targets list:
 ```sh
 $ osint_cli_tool_skeleton --target-list targets.txt
 ```
+
+Or combine tool with other through input/output pipelining:
+```sh
+$ cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
+```
