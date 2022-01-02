@@ -1,7 +1,8 @@
-LINT_FILES=osint-cli-tool-skeleton tests
+PROJECT_NAME=osint_cli_tool_skeleton
+LINT_FILES=osint_cli_tool_skeleton tests
 
 test:
-	coverage run --source=./osint-cli-tool-skeleton -m pytest tests
+	coverage run --source=./osint_cli_tool_skeleton -m pytest tests
 	coverage report -m
 	coverage html
 
@@ -22,7 +23,10 @@ format:
 	black --skip-string-normalization ${LINT_FILES}
 
 clean:
-	rm -rf reports htmcov dist
+	rm -rf reports htmcov dist build *.egg-info
 
 install:
 	pip3 install .
+
+rename:
+	@python3 update.py
