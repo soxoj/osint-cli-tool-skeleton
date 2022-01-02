@@ -3,7 +3,9 @@ Commandline interface
 """
 import asyncio
 import logging
+import os
 import platform
+import sys
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
@@ -26,11 +28,21 @@ def setup_arguments_parser():
         formatter_class=RawDescriptionHelpFormatter,
         description=f"OSINT tool v{__version__}\n"
     )
-    parser.add_argument(
+    target_group = parser.add_argument_group(
+        'INPUT', 'Options for input data'
+    )
+    target_group.add_argument(
         "target",
         nargs='*',
         metavar="TARGET",
         help="One or more target to get info by.",
+    )
+    target_group.add_argument(
+        "--target-list",
+        action="store",
+        dest="target_list_filename",
+        default='',
+        help="Path to text file with list of targets.",
     )
     parser.add_argument(
         "--version",
@@ -44,7 +56,7 @@ def setup_arguments_parser():
         metavar='TIMEOUT',
         dest="timeout",
         default=100,
-        help="Time in seconds to wait for execution",
+        help="Time in seconds to wait for execution.",
     )
     parser.add_argument(
         "--cookie-jar-file",
@@ -128,11 +140,28 @@ async def main():
 
     logger.setLevel(log_level)
 
-    print(args)
+    input_data = []
 
-    input_data = InputData('test')
+    if args.target_list_filename:
+        if not os.path.exists(args.target_list_filename):
+            print(f'There is no file {args.target_list_filename}')
+        else:
+            with open(args.target_list_filename) as f:
+                input_data = [InputData(t) for t in f.read().splitlines()]
+    elif args.target:
+        input_data = [InputData(t) for t in args.target]
 
-    print(process([input_data]))
+    if not input_data:
+        print('There are no targets to check!')
+        sys.exit(1)
+
+    processor = Processor()
+    output_data = await processor.process(input_data)
+
+    for o in output_data:
+        print(o)
+
+    await processor.close()
 
 
 def run():

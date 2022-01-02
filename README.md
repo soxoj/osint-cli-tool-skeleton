@@ -64,3 +64,16 @@ $ python3 -m osint-cli-tool-skeleton
 
 $ osint_cli_tool_skeleton
 ```
+
+Specify targets one or more times:
+```sh
+$ osint_cli_tool_skeleton microsoft.com telegram.org
+
+telegram.org: Telegram Messenger (None)
+microsoft.com: Microsoft — облачные технологии, приложения и игры (None)
+```
+
+Or use a file with targets list:
+```sh
+$ osint_cli_tool_skeleton --target-list targets.txt
+```
