@@ -67,10 +67,27 @@ $ osint_cli_tool_skeleton
 
 Specify targets one or more times:
 ```sh
-$ osint_cli_tool_skeleton microsoft.com telegram.org
+$ osint_cli_tool_skeleton www.google.com reddit.com patreon.com
 
-telegram.org: Telegram Messenger (None)
-microsoft.com: Microsoft — облачные технологии, приложения и игры (None)
+Target: www.google.com
+Results found: 1
+1) Value: Google
+Code: 200
+
+------------------------------
+Target: patreon.com
+Results found: 1
+1) Value: Best way for artists and creators to get sustainable income and connect with fans | Patreon
+Code: 200
+
+------------------------------
+Target: reddit.com
+Results found: 1
+1) Value: Reddit - Dive into anything
+Code: 200
+
+------------------------------
+Total found: 3
 ```
 
 Or use a file with targets list:
@@ -81,4 +98,17 @@ $ osint_cli_tool_skeleton --target-list targets.txt
 Or combine tool with other through input/output pipelining:
 ```sh
 $ cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
+```
+
+The skeleton implements CSV reports:
+```sh
+$ osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oC results.csv
+...
+Results were saved to file results.csv
+
+$ more results.csv
+"Target","Value","Code"
+"www.google.com","Google","200"
+"patreon.com","Best way for artists and creators to get sustainable income and connect with fans | Patreon","200"
+"reddit.com","Reddit - Dive into anything","200"
 ```

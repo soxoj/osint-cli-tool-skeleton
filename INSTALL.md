@@ -1,5 +1,21 @@
 # Install tips
 
+## Prepare repository
+
+Clone repo locally and use `prepare.py` script to prepare repo code for using in another project.
+
+You should run the script to rename dirs and variables in py-files.
+
+## Update main code
+
+You should edit file `osint_cli_tool_skeleton/core.py` to use you OSINT methods / calls / etc. instead of template method (get title and status code from main page of site).
+
+`InputData` - usually it is not necessary to change, just a value for search for.
+
+`OutputData` - class with result fields, you must change it for your own purposes.
+
+`Processor -> def request` - function for converting input to output, you must write your own logic there.
+
 ## PyPI publishing
 
 To prepare repo for the publishing:

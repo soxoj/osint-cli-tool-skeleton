@@ -19,16 +19,33 @@ class InputData:
 
 
 class OutputData:
-    def __init__(self, value, error):
+    def __init__(self, value, code, error):
         self.value = value
+        self.code = code
         self.error = error
+
+    @property
+    def fields(self):
+        fields = list(self.__dict__.keys())
+        fields.remove('error')
+
+        return fields
 
     def __str__(self):
         error = ''
         if self.error:
             error = f' (error: {str(self.error)}'
 
-        return f'{str(self.value)}{error}'
+        result = ''
+
+        for field in self.fields:
+            field_pretty_name = field.title().replace('_', ' ')
+            value = self.__dict__.get(field)
+            if value:
+                result += f'{field_pretty_name}: {str(value)}\n'
+
+        result += f'{error}'
+        return result
 
 
 class OutputDataList:
@@ -37,7 +54,7 @@ class OutputDataList:
         self.results = results
 
     def __repr__(self):
-        return f'{self.input_data}: ' + ', '.join(map(str, self.results))
+        return f'Target {self.input_data}:\n' + '--------\n'.join(map(str, self.results))
 
 
 class Processor:
@@ -75,7 +92,7 @@ class Processor:
         except Exception as e:
             error = e
 
-        results = OutputDataList(input_data, [OutputData(result, error)])
+        results = OutputDataList(input_data, [OutputData(result, status, error)])
 
         return results
 
