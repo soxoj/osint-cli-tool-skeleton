@@ -60,9 +60,23 @@ class PlainOutput(Output):
         return text
 
 
+class TXTOutput(PlainOutput):
+    def __init__(self, *args, **kwargs):
+        self.filename = kwargs.get('filename', 'report.txt')
+        super().__init__(*args, **kwargs)
+        self.is_colored = False
+
+    def put(self):
+        text = super().put()
+        with open(self.filename, 'w') as f:
+            f.write(text)
+
+        return f'Results were saved to file {self.filename}'
+
+
 class CSVOutput(Output):
     def __init__(self, *args, **kwargs):
-        self.filename = kwargs.get('filename', True)
+        self.filename = kwargs.get('filename', 'report.csv')
         super().__init__(*args, **kwargs)
 
     def put(self):

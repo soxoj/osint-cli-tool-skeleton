@@ -63,6 +63,14 @@ def setup_arguments_parser():
         default='',
         help="Path to file for saving CSV report.",
     )
+    out_group.add_argument(
+        "--text-report",
+        "-oT",
+        action="store",
+        dest="txt_filename",
+        default='',
+        help="Path to file for saving TXT report (grepable console output).",
+    )
     parser.add_argument(
         "--version",
         action="version",
@@ -177,13 +185,13 @@ async def main():
             with open(args.target_list_filename) as f:
                 input_data = [InputData(t) for t in f.read().splitlines()]
 
-    # read from stdin
+    # or read from stdin
     # e.g. cat list.txt | ./run.py --targets-from-stdin
     elif args.target_list_stdin:
         for line in sys.stdin:
             input_data.append(InputData(line.strip()))
 
-    # read from arguments
+    # or read from arguments
     elif args.target:
         input_data = [InputData(t) for t in args.target]
 
@@ -191,15 +199,24 @@ async def main():
         print('There are no targets to check!')
         sys.exit(1)
 
-    processor = Processor()
+    # convert input to output
+    processor = Processor(no_progressbar=args.no_progressbar)
     output_data = await processor.process(input_data)
 
+    # console output
     if not args.silent:
         r = PlainOutput(output_data, colored=not args.no_color)
         print(r.put())
 
+    # save CSV report
     if args.csv_filename:
         r = CSVOutput(output_data, filename=args.csv_filename)
+        print(r.put())
+
+    # save TXT report
+
+    if args.txt_filename:
+        r = TXTOutput(output_data, filename=args.txt_filename)
         print(r.put())
 
     await processor.close()

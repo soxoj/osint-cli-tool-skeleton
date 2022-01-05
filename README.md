@@ -112,3 +112,14 @@ $ more results.csv
 "patreon.com","Best way for artists and creators to get sustainable income and connect with fans | Patreon","200"
 "reddit.com","Reddit - Dive into anything","200"
 ```
+
+And can save console output to text file separately:
+```sh
+osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oT results.txt
+...
+$ head -n 4 results.txt
+Target: www.google.com
+Results found: 1
+1) Value: Google
+Code: 200
+```

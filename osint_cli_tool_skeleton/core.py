@@ -4,7 +4,7 @@ from typing import List, Any
 from aiohttp import TCPConnector, ClientSession
 from bs4 import BeautifulSoup as bs
 
-from .executor import AsyncioProgressbarQueueExecutor
+from .executor import AsyncioProgressbarQueueExecutor, AsyncioSimpleExecutor
 
 
 class InputData:
@@ -58,11 +58,15 @@ class OutputDataList:
 
 
 class Processor:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         connector = TCPConnector(ssl=False)
         self.session = ClientSession(
             connector=connector, trust_env=True
         )
+        if kwargs.get('no_progressbar'):
+            self.executor = AsyncioSimpleExecutor()
+        else:
+            self.executor = AsyncioProgressbarQueueExecutor()
 
     async def close(self):
         await self.session.close()
@@ -107,6 +111,6 @@ class Processor:
             for i in input_data
         ]
 
-        results = await AsyncioProgressbarQueueExecutor().run(tasks)
+        results = await self.executor.run(tasks)
 
         return results
