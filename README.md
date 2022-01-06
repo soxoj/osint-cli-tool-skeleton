@@ -19,51 +19,28 @@
 
 Template for new OSINT command-line tools.
 
-**Press button "Use this template" to generate your own tool repository.** See [INSTALL.md](INSTALL.md) for further setup.
+**Press button "[Use this template](https://github.com/soxoj/osint-cli-tool-skeleton/generate)" to generate your own tool repository.** See [INSTALL.md](INSTALL.md) for further setup.
 
 ## Features
 
 - Detailed readme
+- Process N targets from args, text files, stdin
+- Make TXT, CSV reports
+- Proxy support
 - Ready to publish Python package
-
-## Installation
-
-Make sure you have Python3 and pip installed.
-
-### Manually
-
-1. Clone or [download](https://github.com/soxoj/osint-cli-tool-skeleton/archive/refs/heads/main.zip) respository
-```sh
-$ git clone https://github.com/soxoj/osint-cli-tool-skeleton
-```
-
-2. Install dependencies
-```sh
-$ pip3 install -r requirements.txt
-```
-
-### As a the package
-
-You can clone/download repo and install it from the directory to use as a Python package.
-```sh
-$ pip3 install .
-```
-
-Also you can install it from the PyPI registry:
-```sh
-$ pip3 install https://github.com/soxoj/osint-cli-tool-skeleton
-```
 
 ## Usage
 
-You can run this tool as a Python module:
 ```sh
-$ python3 -m osint-cli-tool-skeleton
+$ python3 -m osint-cli-tool-skeleton <target>
 
 # or simply
 
-$ osint_cli_tool_skeleton
+$ osint_cli_tool_skeleton <target>
 ```
+
+<details>
+<summary>Targets</summary>
 
 Specify targets one or more times:
 ```sh
@@ -99,6 +76,10 @@ Or combine tool with other through input/output pipelining:
 ```sh
 $ cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
 ```
+</details>
+
+<details>
+<summary>Reports</summary>
 
 The skeleton implements CSV reports:
 ```sh
@@ -123,3 +104,46 @@ Results found: 1
 1) Value: Google
 Code: 200
 ```
+</details>
+
+<details>
+<summary>Proxy</summary>
+
+The tool supports proxy:
+```sh
+$ osint_cli_tool_skeleton www.google.com --proxy http://localhost:8080
+```
+</details>
+
+## Installation
+
+Make sure you have Python3 and pip installed.
+
+
+<details>
+<summary>Manually</summary>
+
+1. Clone or [download](https://github.com/soxoj/osint-cli-tool-skeleton/archive/refs/heads/main.zip) respository
+```sh
+$ git clone https://github.com/soxoj/osint-cli-tool-skeleton
+```
+
+2. Install dependencies
+```sh
+$ pip3 install -r requirements.txt
+```
+</details>
+
+<details>
+<summary>As a the package</summary>
+
+You can clone/download repo and install it from the directory to use as a Python package.
+```sh
+$ pip3 install .
+```
+
+Also you can install it from the PyPI registry:
+```sh
+$ pip3 install https://github.com/soxoj/osint-cli-tool-skeleton
+```
+</details>

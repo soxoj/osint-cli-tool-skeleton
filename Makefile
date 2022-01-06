@@ -23,7 +23,7 @@ format:
 	black --skip-string-normalization ${LINT_FILES}
 
 clean:
-	rm -rf reports htmcov dist build *.egg-info
+	rm -rf reports htmcov dist build *.egg-info *.txt *.csv *.pdf
 
 install:
 	pip3 install .

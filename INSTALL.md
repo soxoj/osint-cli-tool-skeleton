@@ -6,6 +6,11 @@ Clone repo locally and use `prepare.py` script to prepare repo code for using in
 
 You should run the script to rename dirs and variables in py-files.
 
+Also you can clean all useless files this way:
+```sh
+$ make clean
+```
+
 ## Update main code
 
 You should edit file `osint_cli_tool_skeleton/core.py` to use you OSINT methods / calls / etc. instead of template method (get title and status code from main page of site).

@@ -200,7 +200,11 @@ async def main():
         sys.exit(1)
 
     # convert input to output
-    processor = Processor(no_progressbar=args.no_progressbar)
+    processor = Processor(
+        no_progressbar=args.no_progressbar,
+        proxy=args.proxy,
+    )
+
     output_data = await processor.process(input_data)
 
     # console output

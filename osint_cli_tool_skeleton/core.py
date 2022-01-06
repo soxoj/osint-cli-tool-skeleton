@@ -2,7 +2,6 @@ import asyncio
 from typing import List, Any
 
 from aiohttp import TCPConnector, ClientSession
-from bs4 import BeautifulSoup as bs
 
 from .executor import AsyncioProgressbarQueueExecutor, AsyncioSimpleExecutor
 
@@ -59,7 +58,16 @@ class OutputDataList:
 
 class Processor:
     def __init__(self, *args, **kwargs):
-        connector = TCPConnector(ssl=False)
+        from aiohttp_socks import ProxyConnector
+
+        # make http client session
+        proxy = kwargs.get('proxy')
+        self.proxy = proxy
+        if proxy:
+            connector = ProxyConnector.from_url(proxy, ssl=False)
+        else:
+            connector = TCPConnector(ssl=False)
+
         self.session = ClientSession(
             connector=connector, trust_env=True
         )
@@ -73,6 +81,7 @@ class Processor:
 
 
     async def request(self, input_data: InputData) -> OutputDataList:
+        from bs4 import BeautifulSoup as bs
         status = 0
         result = None
         error = None
