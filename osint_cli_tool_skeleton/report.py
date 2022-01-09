@@ -83,7 +83,13 @@ class CSVOutput(Output):
         if not len(self.data) and not len(self.data[0].results):
             return ''
 
-        fields = self.data[0].results[0].fields
+        fields = []
+        for f in self.data:
+            for r in f.results:
+                fields += r.fields
+
+        fields = list(set(fields))
+
         fieldnames = ['Target'] + [k.title().replace('_', ' ') for k in fields]
 
         with open(self.filename, 'w') as csvfile:
