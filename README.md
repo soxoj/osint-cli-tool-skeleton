@@ -37,10 +37,15 @@ $ python3 -m osint-cli-tool-skeleton <target>
 # or simply
 
 $ osint_cli_tool_skeleton <target>
+
+# or locally without installing
+
+$ ./run.py <target>
 ```
 
 <details>
 <summary>Targets</summary>
+</br>
 
 Specify targets one or more times:
 ```sh
@@ -80,6 +85,7 @@ $ cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
 
 <details>
 <summary>Reports</summary>
+</br>
 
 The skeleton implements CSV reports:
 ```sh
@@ -94,10 +100,33 @@ $ more results.csv
 "reddit.com","Reddit - Dive into anything","200"
 ```
 
+Also tool supports JSON output format:
+```
+osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oJ results.json
+...
+Results were saved to file results.json
+
+$ cat results.json | jq | head -n 10
+[
+  {
+    "input": {
+      "value": "www.google.com"
+    },
+    "output": [
+      {
+        "value": "Google",
+        "code": 200
+      }
+    ]
+  },
+```
+
 And can save console output to text file separately:
 ```sh
 osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oT results.txt
 ...
+Results were saved to file results.txt
+
 $ head -n 4 results.txt
 Target: www.google.com
 Results found: 1
@@ -108,12 +137,52 @@ Code: 200
 
 <details>
 <summary>Proxy</summary>
+</br>
 
 The tool supports proxy:
 ```sh
 $ osint_cli_tool_skeleton www.google.com --proxy http://localhost:8080
 ```
 </details>
+
+
+<details>
+<summary>Server</summary>
+</br>
+
+The tool can be run as a server:
+```sh
+$ osint_cli_tool_skeleton --server 0.0.0.0:8080
+Server started
+
+$ curl localhost:8080/check -d '{"targets": ["google.com", "yahoo.com"]}' -s | jq
+[
+  {
+    "input": {
+      "value": "google.com"
+    },
+    "output": [
+      {
+        "value": "Google",
+        "code": 200
+      }
+    ]
+  },
+  {
+    "input": {
+      "value": "yahoo.com"
+    },
+    "output": [
+      {
+        "value": "Yahoo | Mail, Weather, Search, Politics, News, Finance, Sports & Videos",
+        "code": 200
+      }
+    ]
+  }
+]
+```
+</details>
+
 
 ## Installation
 
@@ -122,6 +191,7 @@ Make sure you have Python3 and pip installed.
 
 <details>
 <summary>Manually</summary>
+</br>
 
 1. Clone or [download](https://github.com/soxoj/osint-cli-tool-skeleton/archive/refs/heads/main.zip) respository
 ```sh
@@ -136,6 +206,7 @@ $ pip3 install -r requirements.txt
 
 <details>
 <summary>As a the package</summary>
+</br>
 
 You can clone/download repo and install it from the directory to use as a Python package.
 ```sh

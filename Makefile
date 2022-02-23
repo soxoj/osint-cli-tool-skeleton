@@ -1,5 +1,5 @@
 PROJECT_NAME=osint_cli_tool_skeleton
-LINT_FILES=osint_cli_tool_skeleton tests
+LINT_FILES=osint_cli_tool_skeleton
 
 test:
 	coverage run --source=./osint_cli_tool_skeleton -m pytest tests

@@ -1,8 +1,9 @@
 from colorama import init
 import csv
+import json
 import termcolor
 
-from .core import OutputData, OutputDataList
+from .core import OutputData, OutputDataList, OutputDataListEncoder
 
 
 # use Colorama to make Termcolor work on Windows too
@@ -101,5 +102,19 @@ class CSVOutput(Output):
                         row[key] = val
 
                     writer.writerow(row)
+
+        return f'Results were saved to file {self.filename}'
+
+
+class JSONOutput(Output):
+    def __init__(self, *args, **kwargs):
+        self.filename = kwargs.get('filename', 'report.csv')
+        super().__init__(*args, **kwargs)
+
+    def put(self):
+        data = [d for d in self.data if d]
+
+        with open(self.filename, 'w') as jsonfile:
+            json.dump(data, jsonfile, cls=OutputDataListEncoder)
 
         return f'Results were saved to file {self.filename}'

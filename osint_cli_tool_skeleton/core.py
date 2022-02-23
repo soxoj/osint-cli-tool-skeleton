@@ -1,4 +1,5 @@
 import asyncio
+from json import JSONEncoder
 from typing import List, Any
 
 from aiohttp import TCPConnector, ClientSession
@@ -54,6 +55,16 @@ class OutputDataList:
 
     def __repr__(self):
         return f'Target {self.input_data}:\n' + '--------\n'.join(map(str, self.results))
+
+
+class OutputDataListEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, OutputDataList):
+            return {'input': o.input_data, 'output': o.results}
+        elif isinstance(o, OutputData):
+            return {k:o.__dict__[k] for k in o.fields}
+        else:
+            return o.__dict__
 
 
 class Processor:
