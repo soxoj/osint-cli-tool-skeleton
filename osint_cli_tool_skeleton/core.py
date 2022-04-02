@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from json import JSONEncoder
 from typing import List, Any
 
@@ -87,6 +88,8 @@ class Processor:
         else:
             self.executor = AsyncioProgressbarQueueExecutor()
 
+        self.logger = logging.getLogger('processor')
+
     async def close(self):
         await self.session.close()
 
@@ -115,6 +118,7 @@ class Processor:
 
         except Exception as e:
             error = e
+            self.logger.error(e, exc_info=False)
 
         results = OutputDataList(input_data, [OutputData(result, status, error)])
 
