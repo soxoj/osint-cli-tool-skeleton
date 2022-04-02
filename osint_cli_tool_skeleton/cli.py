@@ -14,6 +14,9 @@ from .report import *
 from .server import *
 
 
+logging.basicConfig(format='[%(asctime)s][%(levelname)s][%(filename)s:%(funcName)s():%(lineno)d]:\t %(message)s')
+
+
 def setup_arguments_parser():
     from aiohttp import __version__ as aiohttp_version
     from ._version import __version__
