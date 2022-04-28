@@ -23,7 +23,9 @@ format:
 	black --skip-string-normalization ${LINT_FILES}
 
 clean:
+	mv requirements.txt req.bak
 	rm -rf reports htmcov dist build *.egg-info *.txt *.csv *.pdf
+	mv req.bak requirements.txt
 
 install:
 	pip3 install .
