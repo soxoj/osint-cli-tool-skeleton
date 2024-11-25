@@ -1,4 +1,4 @@
 asyncio==3.4.3
 tqdm==4.66.2
 colorama==0.4.6
-termcolor==2.4.0
+termcolor==2.5.0
