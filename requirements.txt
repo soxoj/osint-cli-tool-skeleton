@@ -1,5 +1,5 @@
-asyncio==3.4.3
+asyncio==4.0.0
 aiohttp-socks==0.11.0
 tqdm==4.67.1
 colorama==0.4.6
-termcolor==2.5.0
+termcolor==3.3.0
