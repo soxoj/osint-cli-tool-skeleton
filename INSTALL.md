@@ -1,34 +1,56 @@
-# Install tips
+# Install &amp; customize
 
-## Prepare repository
+## 1. Get the code
 
-Clone repo locally and use `prepare.py` script to prepare repo code for using in another project.
+Press **[Use this template](https://github.com/soxoj/osint-cli-tool-skeleton/generate)**
+on GitHub, or clone:
 
-You should run the script to rename dirs and variables in py-files.
-
-Also you can clean all useless files this way:
 ```sh
-$ make clean
+git clone https://github.com/soxoj/osint-cli-tool-skeleton
+cd osint-cli-tool-skeleton
 ```
 
-## Update main code
+## 2. Install
 
-You should edit file `osint_cli_tool_skeleton/core.py` to use you OSINT methods / calls / etc. instead of template method (get title and status code from main page of site).
+```sh
+pip install -e .            # core CLI + library
+pip install -e '.[server]'  # + FastAPI HTTP microservice
+pip install -e '.[mcp]'     # + MCP server for AI agents
+pip install -e '.[all,dev]' # everything + dev tools (tests, lint, build)
+```
 
-`InputData` - usually it is not necessary to change, just a value for search for.
+## 3. Rename it to your project (optional but recommended)
 
-`OutputData` - class with result fields, you must change it for your own purposes.
+```sh
+python prepare.py my_new_tool
+```
 
-`Processor -> def request` - function for converting input to output, you must write your own logic there.
+This renames the package directory and updates every import, doc and packaging
+field, so the result keeps working as a CLI, library, server and MCP server.
 
-## PyPI publishing
+## 4. Build your tool — add a plugin
 
-To prepare repo for the publishing:
-1. [Register](https://pypi.org/account/register/) (if you not)
-1. Add your login and password to the repo secrets (Settings => Secrets) as `PYPI_PASSWORD` and `PYPI_USERNAME`
+You no longer edit `core.py`. Instead you add **one plugin file**:
 
-To publish package to the PyPI registry:
-1. Update your package version in the [`_version` file](https://github.com/soxoj/osint-cli-tool-skeleton/blob/main/osint-cli-tool-skeleton/_version.py)
-1. Create a release with the button [`Draft a new release`](https://github.com/soxoj/osint-cli-tool-skeleton/releases/new)
+```sh
+python -m osint_cli_tool_skeleton --new-plugin my_tool
+# edit osint_cli_tool_skeleton/plugins/my_tool.py -> implement run()
+python -m osint_cli_tool_skeleton --plugin my_tool <target>
+```
 
-A new publish action should be started, you can check it in your repo's [Actions section](https://github.com/soxoj/osint-cli-tool-skeleton/actions)
+See [AGENTS.md](AGENTS.md) for the full plugin contract — it doubles as the
+brief you can hand to an AI agent ("build a tool based on this repo").
+
+## 5. Test &amp; publish
+
+```sh
+pytest -q            # run the test suite
+make lint            # flake8 + mypy
+make build           # python -m build -> dist/
+```
+
+To publish to PyPI:
+1. Bump the version in `osint_cli_tool_skeleton/_version.py`.
+2. Add `PYPI_USERNAME` / `PYPI_PASSWORD` to the repo secrets.
+3. Create a GitHub release — the `Upload Python Package` workflow builds and
+   uploads automatically.

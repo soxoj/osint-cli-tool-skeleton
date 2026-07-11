@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osint_cli_tool_skeleton"
+description = "A universal, AI-native skeleton for OSINT CLI tools, libraries, microservices and MCP servers."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Soxoj", email = "soxoj@protonmail.com" }]
+requires-python = ">=3.10"
+dynamic = ["version"]
+keywords = ["osint", "cli", "skeleton", "template", "mcp", "fastapi", "async"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "aiohttp",
+    "aiohttp-socks>=0.8",
+    "beautifulsoup4",
+    "tqdm>=4.66",
+    "colorama>=0.4",
+    "termcolor>=2.0",
+]
+
+[project.optional-dependencies]
+server = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
+mcp = ["mcp>=1.0"]
+yaml = ["pyyaml>=6.0"]
+toml = ["tomli>=2.0; python_version < '3.11'"]
+all = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "mcp>=1.0",
+    "pyyaml>=6.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23",
+    "coverage>=7.0",
+    "flake8>=6.0",
+    "mypy>=1.0",
+    "black>=23.0",
+    "build>=1.0",
+    "twine>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/soxoj/osint-cli-tool-skeleton"
+Repository = "https://github.com/soxoj/osint-cli-tool-skeleton"
+
+[project.scripts]
+osint_cli_tool_skeleton = "osint_cli_tool_skeleton.cli:run"
+
+[tool.setuptools.dynamic]
+version = { attr = "osint_cli_tool_skeleton._version.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["osint_cli_tool_skeleton*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.black]
+skip-string-normalization = true
+line-length = 100
+
+[tool.mypy]
+ignore_missing_imports = true

@@ -1,5 +1,11 @@
-asyncio==4.0.0
-aiohttp-socks==0.11.0
-tqdm==4.68.4
-colorama==0.4.6
-termcolor==3.3.0
+# Core runtime dependencies. For optional features install extras instead:
+#   pip install '.[server]'   # FastAPI HTTP microservice
+#   pip install '.[mcp]'      # MCP server for AI agents
+#   pip install '.[yaml]'     # YAML config files
+#   pip install '.[all]'      # everything
+aiohttp
+aiohttp-socks>=0.8
+beautifulsoup4
+tqdm>=4.66
+colorama>=0.4
+termcolor>=2.0
