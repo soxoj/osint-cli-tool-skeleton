@@ -1,126 +1,134 @@
-from colorama import init
+"""
+Reporters: turn ``list[ResultSet]`` into console text, TXT, CSV or JSON.
+
+Reporters are schema-driven — they read :attr:`ResultSet.field_names` so they
+adapt automatically to whatever fields a plugin emits. Register a new format by
+subclassing :class:`Reporter` and setting :attr:`format`.
+"""
+from __future__ import annotations
+
 import csv
-import json
-import termcolor
+import io
+from typing import Dict, List, Type
 
-from .core import OutputData, OutputDataList, OutputDataListEncoder
+from colorama import init as _colorama_init
+
+from .schema import ResultSet, dumps
+
+_colorama_init()  # make ANSI colours work on Windows too
+
+_FORMATS: Dict[str, Type["Reporter"]] = {}
 
 
-# use Colorama to make Termcolor work on Windows too
-init()
+def _titleize(name: str) -> str:
+    return name.title().replace("_", " ")
 
 
-class Output:
-    def __init__(self, data: OutputDataList, *args, **kwargs):
+class Reporter:
+    """Base reporter. ``render()`` returns a string; ``save()`` writes a file."""
+
+    format: str = ""
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if cls.format:
+            _FORMATS[cls.format] = cls
+
+    def __init__(self, data: List[ResultSet], **kwargs):
         self.data = data
+        self.kwargs = kwargs
 
-    def put(self):
-        pass
+    def render(self) -> str:
+        raise NotImplementedError
+
+    def save(self, filename: str) -> str:
+        with open(filename, "w", encoding="utf-8", newline="") as fh:
+            fh.write(self.render())
+        return f"Results were saved to file {filename}"
 
 
-class PlainOutput(Output):
-    def __init__(self, *args, **kwargs):
-        self.is_colored = kwargs.get('colored', True)
-        super().__init__(*args, **kwargs)
+class PlainReporter(Reporter):
+    format = "plain"
 
-    def colored(self, val, color):
+    def __init__(self, data, *, colored: bool = True, **kwargs):
+        super().__init__(data, **kwargs)
+        self.is_colored = colored
+
+    def _c(self, value: str, color: str) -> str:
         if not self.is_colored:
-            return val
+            return value
+        import termcolor
 
-        return termcolor.colored(val, color)
+        return termcolor.colored(value, color)
 
-    def put(self):
-        text = ''
+    def render(self) -> str:
+        lines: list[str] = []
         total = 0
-        olist = self.data
-
-        for o in olist:
-            i = o.input_data
-
-            text += f'Target: {self.colored(str(i), "green")}\n'
-            text += f'Results found: {len(o.results)}\n'
-
-            for n, r in enumerate(o.results):
-                text += f'{n+1}) '
+        for rs in self.data:
+            lines.append(f"Target: {self._c(str(rs.input_data), 'green')}")
+            lines.append(f"Results found: {len(rs.results)}")
+            if rs.error:
+                lines.append(f"{self._c('Error', 'red')}: {rs.error}")
+            for n, result in enumerate(rs.results, start=1):
+                cells = []
+                for key in result.fields:
+                    value = result.fields.get(key)
+                    if value in (None, ""):
+                        continue
+                    cells.append(f"{self._c(_titleize(key), 'yellow')}: {value}")
+                if result.error:
+                    cells.append(f"{self._c('Error', 'red')}: {result.error}")
+                body = "\n   ".join(cells) if cells else "(no fields)"
+                lines.append(f"{n}) {body}")
                 total += 1
-
-                for k in r.fields:
-                    key = k.title().replace('_', ' ')
-                    val = r.__dict__.get(k)
-                    if val is None:
-                        val = ''
-
-                    text += f'{self.colored(key, "yellow")}: {val}\n'
-
-                text += '\n'
-
-            text += '-'*30 + '\n'
-
-        text += f'Total found: {total}\n'
-
-        return text
+            lines.append("-" * 30)
+        lines.append(f"Total found: {total}")
+        return "\n".join(lines) + "\n"
 
 
-class TXTOutput(PlainOutput):
-    def __init__(self, *args, **kwargs):
-        self.filename = kwargs.get('filename', 'report.txt')
-        super().__init__(*args, **kwargs)
-        self.is_colored = False
+class TXTReporter(PlainReporter):
+    format = "txt"
 
-    def put(self):
-        text = super().put()
-        with open(self.filename, 'w') as f:
-            f.write(text)
-
-        return f'Results were saved to file {self.filename}'
+    def __init__(self, data, **kwargs):
+        kwargs["colored"] = False
+        super().__init__(data, **kwargs)
 
 
-class CSVOutput(Output):
-    def __init__(self, *args, **kwargs):
-        self.filename = kwargs.get('filename', 'report.csv')
-        super().__init__(*args, **kwargs)
+class CSVReporter(Reporter):
+    format = "csv"
 
-    def put(self):
-        if not len(self.data) and not len(self.data[0].results):
-            return ''
+    def render(self) -> str:
+        field_names: list[str] = []
+        for rs in self.data:
+            for name in rs.field_names:
+                if name not in field_names:
+                    field_names.append(name)
 
-        fields = []
-        for f in self.data:
-            for r in f.results:
-                fields += r.fields
-
-        fields = list(set(fields))
-
-        fieldnames = ['Target'] + [k.title().replace('_', ' ') for k in fields]
-
-        with open(self.filename, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
-            writer.writeheader()
-
-            for o in self.data:
-                i = o.input_data
-                row = {'Target': i}
-
-                for r in o.results:
-                    for k in fields:
-                        key = k.title().replace('_', ' ')
-                        val = r.__dict__.get(k)
-                        row[key] = val
-
-                    writer.writerow(row)
-
-        return f'Results were saved to file {self.filename}'
+        header = ["Target"] + [_titleize(f) for f in field_names]
+        buffer = io.StringIO()
+        writer = csv.DictWriter(buffer, fieldnames=header, quoting=csv.QUOTE_ALL)
+        writer.writeheader()
+        for rs in self.data:
+            for result in rs.results:
+                row = {"Target": str(rs.input_data)}
+                for field in field_names:
+                    row[_titleize(field)] = result.fields.get(field, "")
+                writer.writerow(row)
+        return buffer.getvalue()
 
 
-class JSONOutput(Output):
-    def __init__(self, *args, **kwargs):
-        self.filename = kwargs.get('filename', 'report.csv')
-        super().__init__(*args, **kwargs)
+class JSONReporter(Reporter):
+    format = "json"
 
-    def put(self):
-        data = [d for d in self.data if d]
+    def render(self) -> str:
+        return dumps([rs for rs in self.data if rs is not None], indent=2)
 
-        with open(self.filename, 'w') as jsonfile:
-            json.dump(data, jsonfile, cls=OutputDataListEncoder)
 
-        return f'Results were saved to file {self.filename}'
+def get_reporter(fmt: str) -> Type[Reporter]:
+    if fmt not in _FORMATS:
+        raise KeyError(f"Unknown report format {fmt!r}. Available: {', '.join(sorted(_FORMATS))}")
+    return _FORMATS[fmt]
+
+
+def render(data: List[ResultSet], fmt: str, **kwargs) -> str:
+    return get_reporter(fmt)(data, **kwargs).render()

@@ -1,0 +1,26 @@
+# Example configuration. Copy to `osint.toml` in your working directory (it is
+# auto-detected) or pass it explicitly with `--config path/to/osint.toml`.
+#
+# Precedence: defaults < this file < OSINT_* env vars < CLI flags.
+# YAML (osint.yaml) and JSON (osint.json) are also supported.
+
+[osint]
+# Which plugin runs by default (see `--list-plugins`).
+plugin = "http_title"
+
+# Network / runtime.
+proxy = ""                 # e.g. "socks5://127.0.0.1:1080"
+timeout = 100              # seconds, per request
+concurrency = 10           # targets processed in parallel
+# cookie_file = "cookies.txt"
+# user_agent = "my-osint-bot/1.0"
+
+# Output.
+no_color = false
+no_progressbar = false
+
+# Plugin-specific options (also settable via `--option key=value` or
+# OSINT_OPTION_<KEY> env vars). Keys depend on the chosen plugin.
+[osint.options]
+# api_key = "..."
+# uppercase = true

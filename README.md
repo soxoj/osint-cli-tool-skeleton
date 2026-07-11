@@ -17,204 +17,196 @@
   </p>
 </p>
 
-Template for new OSINT command-line tools.
+A universal, **AI-native** template for building OSINT tools.
 
-**Press button "[Use this template](https://github.com/soxoj/osint-cli-tool-skeleton/generate)" to generate your own tool repository.** See [INSTALL.md](INSTALL.md) for further setup.
+Write **one plugin file**, and the same logic instantly works as a **CLI**, a
+**Python library**, an **HTTP microservice** (FastAPI) and an **MCP server** for
+AI agents — with concurrency, proxying, reports and config handled for you.
 
-## Features
+> **Press "[Use this template](https://github.com/soxoj/osint-cli-tool-skeleton/generate)"** to start your own tool, then see [INSTALL.md](INSTALL.md).
 
-- Detailed readme
-- Process N targets from args, text files, stdin
-- Make TXT, CSV reports
-- Proxy support
-- Ready to publish Python package
+## Why this skeleton
 
-## Usage
+- **Universal** — plugins return arbitrary fields; nothing is hardcoded to one
+  data shape. Build a username checker, a domain enricher, a leak lookup, anything.
+- **Easy to customize** — add a capability by dropping one file in `plugins/`.
+  You never touch the engine, CLI, server or reports.
+- **Embeddable** — clean sync (`run_tool`) and async (`arun_tool`) library API,
+  plus a FastAPI app factory for microservices and pipelines.
+- **AI-native** — every plugin is auto-exposed as an MCP tool, and
+  [AGENTS.md](AGENTS.md) is a ready brief: point an agent at the repo and say
+  "build a tool based on this".
 
-```sh
-$ python3 -m osint-cli-tool-skeleton <target>
+## Architecture
 
-# or simply
-
-$ osint_cli_tool_skeleton <target>
-
-# or locally without installing
-
-$ ./run.py <target>
+```
+                       your plugins/  (subclass Plugin, implement run())
+                              │  auto-discovered & registered
+                              ▼
+   CLI ─┐                  ┌─────────┐
+   lib ─┼──> Settings ──>  │ Engine  │ ──> Reporters (plain/csv/txt/json)
+  HTTP ─┤   (file/env/CLI) │ +Context│      Result / ResultSet (any fields)
+   MCP ─┘                  └─────────┘
 ```
 
-<details>
-<summary>Targets</summary>
-</br>
+## Quickstart
 
-Specify targets one or more times:
 ```sh
-$ osint_cli_tool_skeleton www.google.com reddit.com patreon.com
+pip install -e .
+python -m osint_cli_tool_skeleton --list-plugins
+python -m osint_cli_tool_skeleton --plugin http_title example.com reddit.com
+```
 
-Target: www.google.com
+```
+Target: example.com
 Results found: 1
-1) Value: Google
-Code: 200
-
+1) Value: Example Domain
+   Code: 200
 ------------------------------
-Target: patreon.com
-Results found: 1
-1) Value: Best way for artists and creators to get sustainable income and connect with fans | Patreon
-Code: 200
-
-------------------------------
-Target: reddit.com
-Results found: 1
-1) Value: Reddit - Dive into anything
-Code: 200
-
-------------------------------
-Total found: 3
+Total found: 1
 ```
 
-Or use a file with targets list:
+## Write a tool (the only thing you edit)
+
 ```sh
-$ osint_cli_tool_skeleton --target-list targets.txt
+python -m osint_cli_tool_skeleton --new-plugin my_tool
 ```
 
-Or combine tool with other through input/output pipelining:
+```python
+# osint_cli_tool_skeleton/plugins/my_tool.py
+from osint_cli_tool_skeleton import InputData, Plugin, Result
+
+class MyTool(Plugin):
+    name = "my_tool"
+    description = "Look up something for a target."
+
+    async def run(self, target: InputData) -> Result:
+        status, data = await self.ctx.fetch_json(f"https://api.example/{target.value}")
+        return Result(found=data.get("found"), code=status)
+```
+
+That's it — `my_tool` now works on the CLI, as a library call, over HTTP and as
+an MCP tool. Full contract in [AGENTS.md](AGENTS.md).
+
+<details>
+<summary><b>Inputs</b> — args, file, or stdin</summary>
+
 ```sh
-$ cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
+osint_cli_tool_skeleton a.com b.com c.com          # positional
+osint_cli_tool_skeleton --target-list targets.txt  # from a file
+cat list.txt | osint_cli_tool_skeleton --targets-from-stdin
 ```
 </details>
 
 <details>
-<summary>Reports</summary>
-</br>
+<summary><b>Reports</b> — console, CSV, TXT, JSON</summary>
 
-The skeleton implements CSV reports:
 ```sh
-$ osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oC results.csv
-...
-Results were saved to file results.csv
-
-$ more results.csv
-"Target","Value","Code"
-"www.google.com","Google","200"
-"patreon.com","Best way for artists and creators to get sustainable income and connect with fans | Patreon","200"
-"reddit.com","Reddit - Dive into anything","200"
+osint_cli_tool_skeleton a.com b.com -oC out.csv -oJ out.json -oT out.txt
+osint_cli_tool_skeleton a.com --format json        # JSON to stdout
 ```
 
-Also tool supports JSON output format:
-```
-osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oJ results.json
-...
-Results were saved to file results.json
-
-$ cat results.json | jq | head -n 10
-[
-  {
-    "input": {
-      "value": "www.google.com"
-    },
-    "output": [
-      {
-        "value": "Google",
-        "code": 200
-      }
-    ]
-  },
-```
-
-And can save console output to text file separately:
+Reports are schema-driven: columns/fields adapt to whatever your plugin emits.
 ```sh
-osint_cli_tool_skeleton www.google.com reddit.com patreon.com -oT results.txt
-...
-Results were saved to file results.txt
-
-$ head -n 4 results.txt
-Target: www.google.com
-Results found: 1
-1) Value: Google
-Code: 200
+$ cat out.json | jq '.[0]'
+{ "input": { "value": "a.com" }, "results": [ { "value": "Site A", "code": 200 } ] }
 ```
 </details>
 
 <details>
-<summary>Proxy</summary>
-</br>
+<summary><b>Library</b> — embed in your own code / pipeline</summary>
 
-The tool supports proxy:
-```sh
-$ osint_cli_tool_skeleton www.google.com --proxy http://localhost:8080
+```python
+from osint_cli_tool_skeleton import run_tool          # sync
+results = run_tool("http_title", ["example.com"], proxy="socks5://127.0.0.1:1080")
+for rs in results:
+    print(rs.input_data, [r.fields for r in rs.results])
+
+# inside an existing event loop:
+from osint_cli_tool_skeleton import arun_tool
+results = await arun_tool("http_title", ["example.com"])
 ```
 </details>
-
 
 <details>
-<summary>Server</summary>
-</br>
+<summary><b>HTTP microservice</b> — FastAPI + OpenAPI</summary>
 
-The tool can be run as a server:
 ```sh
-$ osint_cli_tool_skeleton --server 0.0.0.0:8080
-Server started
+pip install -e '.[server]'
+osint_cli_tool_skeleton --server 0.0.0.0:8080      # docs at /docs
+```
 
-$ curl localhost:8080/check -d '{"targets": ["google.com", "yahoo.com"]}' -s | jq
-[
-  {
-    "input": {
-      "value": "google.com"
-    },
-    "output": [
-      {
-        "value": "Google",
-        "code": 200
-      }
-    ]
-  },
-  {
-    "input": {
-      "value": "yahoo.com"
-    },
-    "output": [
-      {
-        "value": "Yahoo | Mail, Weather, Search, Politics, News, Finance, Sports & Videos",
-        "code": 200
-      }
-    ]
-  }
-]
+```sh
+curl localhost:8080/plugins/http_title/run \
+  -d '{"targets": ["google.com", "yahoo.com"]}' -s | jq
+```
+
+Endpoints: `GET /plugins`, `GET /plugins/{name}/schema`,
+`POST /plugins/{name}/run`, `POST /run`. For your own ASGI deployment:
+`from osint_cli_tool_skeleton.server import create_app; app = create_app()`.
+
+Or run it in Docker:
+```sh
+docker build -t osint-tool . && docker run -p 8080:8080 osint-tool
 ```
 </details>
 
+<details>
+<summary><b>MCP server</b> — for AI agents</summary>
+
+```sh
+pip install -e '.[mcp]'
+osint_cli_tool_skeleton --mcp        # stdio MCP server
+```
+
+Every plugin becomes an MCP tool named after it, taking `targets` and optional
+`options`. Register it with your agent/host as the command
+`osint_cli_tool_skeleton --mcp`.
+</details>
+
+<details>
+<summary><b>Configuration</b> — file / env / CLI</summary>
+
+Precedence: **defaults < config file < `OSINT_*` env < CLI flags**.
+
+```toml
+# osint.toml (auto-detected in cwd, or pass --config)
+[osint]
+plugin = "http_title"
+proxy = "socks5://127.0.0.1:1080"
+concurrency = 20
+[osint.options]
+api_key = "..."
+```
+
+```sh
+OSINT_PROXY=socks5://127.0.0.1:1080 osint_cli_tool_skeleton example.com
+osint_cli_tool_skeleton --plugin my_tool --option api_key=XXX --concurrency 20 t
+```
+
+See [`examples/osint.example.toml`](examples/osint.example.toml).
+</details>
 
 ## Installation
 
-Make sure you have Python3 and pip installed.
+Requires Python ≥ 3.9.
 
-
-<details>
-<summary>Manually</summary>
-</br>
-
-1. Clone or [download](https://github.com/soxoj/osint-cli-tool-skeleton/archive/refs/heads/main.zip) respository
 ```sh
-$ git clone https://github.com/soxoj/osint-cli-tool-skeleton
+pip install osint_cli_tool_skeleton            # from PyPI (core)
+pip install 'osint_cli_tool_skeleton[all]'     # + server, mcp, yaml
 ```
 
-2. Install dependencies
-```sh
-$ pip3 install -r requirements.txt
-```
-</details>
+…or clone and `pip install -e '.[all,dev]'`. Details in [INSTALL.md](INSTALL.md).
 
-<details>
-<summary>As a the package</summary>
-</br>
+## Development
 
-You can clone/download repo and install it from the directory to use as a Python package.
 ```sh
-$ pip3 install .
+make install-dev   # editable install with dev tools
+make test          # pytest + coverage
+make lint          # flake8 + mypy
+make format        # black
 ```
 
-Also you can install it from the PyPI registry:
-```sh
-$ pip3 install https://github.com/soxoj/osint-cli-tool-skeleton
-```
-</details>
+## License
+
+MIT
