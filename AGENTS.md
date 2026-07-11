@@ -96,7 +96,7 @@ plugin path (see `plugins/string_info.py`) so CI needs no network.
 
 ## Conventions
 
-- Python ≥ 3.9, `async`/`await`, type hints, ~100 col lines.
+- Python ≥ 3.10, `async`/`await`, type hints, ~100 col lines.
 - Match the surrounding style; run `make format` (black) and `make lint`.
 - Network only through `self.ctx`. Secrets via options/env, never hard-coded.
 - Keep one plugin per file; name the file after the plugin's `name`.

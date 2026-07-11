@@ -8,7 +8,7 @@ description = "A universal, AI-native skeleton for OSINT CLI tools, libraries, m
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Soxoj", email = "soxoj@protonmail.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version"]
 keywords = ["osint", "cli", "skeleton", "template", "mcp", "fastapi", "async"]
 classifiers = [
@@ -17,6 +17,9 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Security",
 ]
 dependencies = [

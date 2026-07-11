@@ -189,7 +189,7 @@ See [`examples/osint.example.toml`](examples/osint.example.toml).
 
 ## Installation
 
-Requires Python ≥ 3.9.
+Requires Python ≥ 3.10.
 
 ```sh
 pip install osint_cli_tool_skeleton            # from PyPI (core)
