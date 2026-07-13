@@ -34,13 +34,13 @@ dependencies = [
 [project.optional-dependencies]
 server = ["fastapi>=0.139.0", "uvicorn[standard]>=0.27"]
 mcp = ["mcp>=1.0"]
-yaml = ["pyyaml>=6.0"]
+yaml = ["pyyaml>=6.0.3"]
 toml = ["tomli>=2.0; python_version < '3.11'"]
 all = [
     "fastapi>=0.139.0",
     "uvicorn[standard]>=0.27",
     "mcp>=1.0",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
     "tomli>=2.0; python_version < '3.11'",
 ]
 dev = [
