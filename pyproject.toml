@@ -24,7 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp",
-    "aiohttp-socks>=0.8",
+    "aiohttp-socks>=0.11.0",
     "beautifulsoup4",
     "tqdm>=4.66",
     "colorama>=0.4",
