@@ -45,7 +45,7 @@ all = [
 ]
 dev = [
     "pytest>=9.1.1",
-    "pytest-asyncio>=0.23",
+    "pytest-asyncio>=1.4.0",
     "coverage>=7.15.2",
     "flake8>=7.3.0",
     "mypy>=1.0",
