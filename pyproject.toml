@@ -32,12 +32,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-server = ["fastapi>=0.139.0", "uvicorn[standard]>=0.51.0"]
+server = ["fastapi>=0.139.2", "uvicorn[standard]>=0.51.0"]
 mcp = ["mcp>=1.28.1"]
 yaml = ["pyyaml>=6.0.3"]
 toml = ["tomli>=2.0; python_version < '3.11'"]
 all = [
-    "fastapi>=0.139.0",
+    "fastapi>=0.139.2",
     "uvicorn[standard]>=0.51.0",
     "mcp>=1.28.1",
     "pyyaml>=6.0.3",
