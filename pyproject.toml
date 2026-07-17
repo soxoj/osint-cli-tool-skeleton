@@ -28,7 +28,7 @@ dependencies = [
     "beautifulsoup4",
     "tqdm>=4.66",
     "colorama>=0.4.6",
-    "termcolor>=2.0",
+    "termcolor>=3.3.0",
 ]
 
 [project.optional-dependencies]
