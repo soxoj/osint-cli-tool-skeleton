@@ -4,7 +4,7 @@
 #   pip install '.[yaml]'     # YAML config files
 #   pip install '.[all]'      # everything
 aiohttp
-aiohttp-socks>=0.11.0
+aiohttp-socks>=0.12.0
 beautifulsoup4
 tqdm>=4.70.0
 colorama>=0.4.6
